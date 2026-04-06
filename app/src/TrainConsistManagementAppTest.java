@@ -1,18 +1,15 @@
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
-import static org.testng.AssertJUnit.assertEquals;
 
 public class TrainConsistManagementAppTest {
 
-    // ─────────────────────────────────────────
-    // Shared bogie list reset before each test
-    // ─────────────────────────────────────────
     private List<TrainConsistManagementApp.Bogie> bogies;
 
     @Before
@@ -20,160 +17,142 @@ public class TrainConsistManagementAppTest {
         bogies = new ArrayList<>();
         bogies.add(new TrainConsistManagementApp.Bogie("Sleeper",     72));
         bogies.add(new TrainConsistManagementApp.Bogie("AC Chair",    56));
+        bogies.add(new TrainConsistManagementApp.Bogie("Sleeper",     70));
         bogies.add(new TrainConsistManagementApp.Bogie("First Class", 18));
-        bogies.add(new TrainConsistManagementApp.Bogie("Executive",   80));
-        bogies.add(new TrainConsistManagementApp.Bogie("Economy",     48));
+        bogies.add(new TrainConsistManagementApp.Bogie("AC Chair",    60));
+        bogies.add(new TrainConsistManagementApp.Bogie("First Class", 20));
     }
 
     // ══════════════════════════════════════════
     // TEST 1
-    // Bogies with capacity GREATER THAN threshold
-    // must appear in the filtered result
+    // Bogies must be grouped correctly by type
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_CapacityGreaterThanThreshold() {
+    public void testGrouping_BogiesGroupedByType() {
 
-        // Given threshold = 70
-        // Sleeper(72) and Executive(80) qualify → 2 bogies
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 70);
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        // Expected: 2 bogies returned
-        assertEquals(2, result.size());
-
-        // All returned bogies must have capacity > 70
-        for (TrainConsistManagementApp.Bogie b : result) {
-            assertTrue(b.name + " should have capacity > 70",
-                    b.capacity > 70);
-        }
+        // Sleeper key must exist
+        assertTrue("Sleeper group must exist",
+                grouped.containsKey("Sleeper"));
     }
 
     // ══════════════════════════════════════════
     // TEST 2
-    // Bogies with capacity EQUAL TO threshold
-    // must NOT be included (filter is strictly >)
+    // Multiple bogies of same type must be
+    // placed in the same group
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_CapacityEqualToThreshold_NotIncluded() {
+    public void testGrouping_MultipleBogiesInSameGroup() {
 
-        // Threshold = 72, Sleeper has exactly 72
-        // Sleeper must NOT appear since 72 is NOT > 72
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 72);
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        boolean sleeperFound = false;
-        for (TrainConsistManagementApp.Bogie b : result) {
-            if (b.name.equals("Sleeper")) {
-                sleeperFound = true;
-                break;
-            }
-        }
-
-        assertFalse("Sleeper with capacity 72 should NOT appear " +
-                "when threshold is 72", sleeperFound);
+        // Two Sleeper bogies must be in same group
+        assertEquals("Sleeper group must contain 2 bogies",
+                2, grouped.get("Sleeper").size());
     }
 
     // ══════════════════════════════════════════
     // TEST 3
-    // Bogies with capacity LESS THAN threshold
-    // must be excluded from the result
+    // Bogies of different types must be in
+    // separate groups
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_CapacityLessThanThreshold_Excluded() {
+    public void testGrouping_DifferentBogieTypes() {
 
-        // Threshold = 70
-        // AC Chair(56), First Class(18), Economy(48) must be excluded
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 70);
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        for (TrainConsistManagementApp.Bogie b : result) {
-            assertTrue(b.name + " has capacity <= 70 and should be excluded",
-                    b.capacity > 70);
-        }
+        assertTrue("Sleeper group must exist",
+                grouped.containsKey("Sleeper"));
+        assertTrue("AC Chair group must exist",
+                grouped.containsKey("AC Chair"));
+        assertTrue("First Class group must exist",
+                grouped.containsKey("First Class"));
     }
 
     // ══════════════════════════════════════════
     // TEST 4
-    // When MULTIPLE bogies match the condition,
-    // ALL of them must appear in the result
+    // Grouping an empty list must return
+    // an empty map without errors
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_MultipleBogiesMatching() {
+    public void testGrouping_EmptyBogieList() {
 
-        // Threshold = 50
-        // Sleeper(72), AC Chair(56), Executive(80) → 3 bogies qualify
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 50);
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(new ArrayList<>());
 
-        assertEquals("Three bogies should match capacity > 50",
-                3, result.size());
+        assertTrue("Empty list must return empty map",
+                grouped.isEmpty());
     }
 
     // ══════════════════════════════════════════
     // TEST 5
-    // When NO bogies match the condition,
-    // result must be an EMPTY list
+    // When only one bogie type exists,
+    // map must contain only one key
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_NoBogiesMatching() {
+    public void testGrouping_SingleBogieCategory() {
 
-        // Threshold = 100 → no bogie has capacity > 100
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 100);
+        List<TrainConsistManagementApp.Bogie> single = new ArrayList<>();
+        single.add(new TrainConsistManagementApp.Bogie("Sleeper", 72));
+        single.add(new TrainConsistManagementApp.Bogie("Sleeper", 70));
 
-        assertTrue("Result should be empty when no bogie exceeds 100",
-                result.isEmpty());
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(single);
+
+        assertEquals("Map must have only one key",
+                1, grouped.size());
     }
 
     // ══════════════════════════════════════════
     // TEST 6
-    // When ALL bogies match the condition,
-    // entire list must be returned
+    // Map must contain all expected bogie
+    // type keys
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_AllBogiesMatching() {
+    public void testGrouping_MapContainsCorrectKeys() {
 
-        // Threshold = 10 → all bogies have capacity > 10
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(bogies, 10);
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        assertEquals("All bogies should match when threshold is very low",
-                bogies.size(), result.size());
+        assertTrue("Map must contain all 3 bogie types",
+                grouped.keySet().containsAll(
+                        Arrays.asList("Sleeper", "AC Chair", "First Class")));
     }
 
     // ══════════════════════════════════════════
     // TEST 7
-    // Filtering an EMPTY list must return
-    // an empty result without any errors
+    // Group size must match expected count
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_EmptyBogieList() {
+    public void testGrouping_GroupSizeValidation() {
 
-        List<TrainConsistManagementApp.Bogie> emptyList = new ArrayList<>();
+        Map<String, List<TrainConsistManagementApp.Bogie>> grouped =
+                TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterBogiesByCapacity(emptyList, 60);
+        assertEquals("AC Chair group must contain 2 bogies",
+                2, grouped.get("AC Chair").size());
 
-        assertTrue("Filtering an empty list must return an empty result",
-                result.isEmpty());
+        assertEquals("First Class group must contain 2 bogies",
+                2, grouped.get("First Class").size());
     }
 
     // ══════════════════════════════════════════
     // TEST 8
-    // The ORIGINAL list must remain UNCHANGED
-    // after the stream filtering operation
+    // Original list must remain unchanged
+    // after grouping operation
     // ══════════════════════════════════════════
     @Test
-    public void testFilter_OriginalListUnchanged() {
+    public void testGrouping_OriginalListUnchanged() {
 
-        // Record original size before filtering
         int originalSize = bogies.size();
 
-        // Perform filtering
-        TrainConsistManagementApp.filterBogiesByCapacity(bogies, 60);
+        TrainConsistManagementApp.groupBogiesByType(bogies);
 
-        // Original list must still have the same size
-        assertEquals("Original bogie list must not be modified after filtering",
+        assertEquals("Original list must not be modified",
                 originalSize, bogies.size());
     }
 }
