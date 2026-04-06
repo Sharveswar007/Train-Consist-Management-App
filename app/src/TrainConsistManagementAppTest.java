@@ -1,107 +1,116 @@
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class TrainConsistManagementAppTest {
 
-    private List<TrainConsistManagementApp.Bogie> bogies;
-
-    @Before
-    public void setUp() {
-        bogies = new ArrayList<>();
-        bogies.add(new TrainConsistManagementApp.Bogie("Sleeper",     72));
-        bogies.add(new TrainConsistManagementApp.Bogie("AC Chair",    56));
-        bogies.add(new TrainConsistManagementApp.Bogie("First Class", 18));
-        bogies.add(new TrainConsistManagementApp.Bogie("Executive",   80));
-        bogies.add(new TrainConsistManagementApp.Bogie("Economy",     48));
-    }
-
     // ══════════════════════════════════════════
     // TEST 1
-    // Loop filtering must exclude bogies
-    // with capacity <= threshold
+    // Valid capacity must create bogie
+    // without any exception
     // ══════════════════════════════════════════
     @Test
-    public void testLoopFilteringLogic() {
+    public void testException_ValidCapacityCreation() {
 
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterByLoop(bogies, 60);
+        try {
+            TrainConsistManagementApp.PassengerBogie b =
+                    new TrainConsistManagementApp.PassengerBogie("Sleeper", 72);
 
-        for (TrainConsistManagementApp.Bogie b : result) {
-            assertTrue(b.name + " must have capacity > 60",
-                    b.capacity > 60);
+            assertEquals("Capacity must be 72", 72, b.capacity);
+            assertEquals("Type must be Sleeper", "Sleeper", b.type);
+
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            fail("No exception expected for valid capacity: " + e.getMessage());
         }
     }
 
     // ══════════════════════════════════════════
     // TEST 2
-    // Stream filtering must exclude bogies
-    // with capacity <= threshold
+    // Negative capacity must throw
+    // InvalidCapacityException
     // ══════════════════════════════════════════
     @Test
-    public void testStreamFilteringLogic() {
+    public void testException_NegativeCapacityThrowsException() {
 
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterByStream(bogies, 60);
+        try {
+            new TrainConsistManagementApp.PassengerBogie("AC Chair", -10);
+            fail("Exception expected for negative capacity");
 
-        for (TrainConsistManagementApp.Bogie b : result) {
-            assertTrue(b.name + " must have capacity > 60",
-                    b.capacity > 60);
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            assertNotNull("Exception must be thrown", e);
         }
     }
 
     // ══════════════════════════════════════════
     // TEST 3
-    // Both methods must produce same results
+    // Zero capacity must throw
+    // InvalidCapacityException
     // ══════════════════════════════════════════
     @Test
-    public void testLoopAndStreamResultsMatch() {
+    public void testException_ZeroCapacityThrowsException() {
 
-        List<TrainConsistManagementApp.Bogie> loopResult =
-                TrainConsistManagementApp.filterByLoop(bogies, 60);
-        List<TrainConsistManagementApp.Bogie> streamResult =
-                TrainConsistManagementApp.filterByStream(bogies, 60);
+        try {
+            new TrainConsistManagementApp.PassengerBogie("First Class", 0);
+            fail("Exception expected for zero capacity");
 
-        assertEquals("Loop and stream results must match",
-                loopResult.size(), streamResult.size());
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            assertNotNull("Exception must be thrown for zero capacity", e);
+        }
     }
 
     // ══════════════════════════════════════════
     // TEST 4
-    // Execution time must be greater than 0
+    // Exception message must match exactly
     // ══════════════════════════════════════════
     @Test
-    public void testExecutionTimeMeasurement() {
+    public void testException_ExceptionMessageValidation() {
 
-        long start   = System.nanoTime();
-        TrainConsistManagementApp.filterByLoop(bogies, 60);
-        long elapsed = System.nanoTime() - start;
+        try {
+            new TrainConsistManagementApp.PassengerBogie("Sleeper", -5);
+            fail("Exception expected");
 
-        assertTrue("Elapsed time must be greater than 0",
-                elapsed > 0);
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            assertEquals("Exception message must match",
+                    "Capacity must be greater than zero",
+                    e.getMessage());
+        }
     }
 
     // ══════════════════════════════════════════
     // TEST 5
-    // Large dataset must be processed correctly
+    // Valid bogie must store correct
+    // type and capacity values
     // ══════════════════════════════════════════
     @Test
-    public void testLargeDatasetProcessing() {
+    public void testException_ObjectIntegrityAfterCreation() {
 
-        List<TrainConsistManagementApp.Bogie> large = new ArrayList<>();
-        for (int i = 1; i <= 100000; i++) {
-            large.add(new TrainConsistManagementApp.Bogie(
-                    "Bogie-" + i, 30 + (i % 80)));
+        try {
+            TrainConsistManagementApp.PassengerBogie b =
+                    new TrainConsistManagementApp.PassengerBogie("Sleeper", 72);
+
+            assertEquals("Type must be Sleeper", "Sleeper", b.type);
+            assertEquals("Capacity must be 72",  72,        b.capacity);
+
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            fail("No exception expected: " + e.getMessage());
         }
+    }
 
-        List<TrainConsistManagementApp.Bogie> result =
-                TrainConsistManagementApp.filterByStream(large, 60);
+    // ══════════════════════════════════════════
+    // TEST 6
+    // Multiple valid bogies must all be
+    // created without exception
+    // ══════════════════════════════════════════
+    @Test
+    public void testException_MultipleValidBogiesCreation() {
 
-        assertFalse("Large dataset result must not be empty",
-                result.isEmpty());
+        try {
+            new TrainConsistManagementApp.PassengerBogie("Sleeper",     72);
+            new TrainConsistManagementApp.PassengerBogie("AC Chair",    56);
+            new TrainConsistManagementApp.PassengerBogie("First Class", 18);
+
+        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+            fail("No exception expected for valid bogies: " + e.getMessage());
+        }
     }
 }
