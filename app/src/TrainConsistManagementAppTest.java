@@ -6,111 +6,109 @@ public class TrainConsistManagementAppTest {
 
     // ══════════════════════════════════════════
     // TEST 1
-    // Valid capacity must create bogie
+    // Safe cargo assignment must succeed
     // without any exception
     // ══════════════════════════════════════════
     @Test
-    public void testException_ValidCapacityCreation() {
+    public void testCargo_SafeAssignment() {
 
-        try {
-            TrainConsistManagementApp.PassengerBogie b =
-                    new TrainConsistManagementApp.PassengerBogie("Sleeper", 72);
+        TrainConsistManagementApp.GoodsBogie bogie =
+                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
 
-            assertEquals("Capacity must be 72", 72, b.capacity);
-            assertEquals("Type must be Sleeper", "Sleeper", b.type);
+        bogie.assignCargo("Petroleum");
 
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
-            fail("No exception expected for valid capacity: " + e.getMessage());
-        }
+        assertEquals("Cargo must be Petroleum",
+                "Petroleum", bogie.cargo);
     }
 
     // ══════════════════════════════════════════
     // TEST 2
-    // Negative capacity must throw
-    // InvalidCapacityException
+    // Petroleum on Rectangular must throw
+    // CargoSafetyException
     // ══════════════════════════════════════════
     @Test
-    public void testException_NegativeCapacityThrowsException() {
+    public void testCargo_UnsafeAssignmentHandled() {
+
+        TrainConsistManagementApp.GoodsBogie bogie =
+                new TrainConsistManagementApp.GoodsBogie("Rectangular");
 
         try {
-            new TrainConsistManagementApp.PassengerBogie("AC Chair", -10);
-            fail("Exception expected for negative capacity");
+            bogie.assignCargo("Petroleum");
+            fail("CargoSafetyException expected");
 
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
+        } catch (TrainConsistManagementApp.CargoSafetyException e) {
             assertNotNull("Exception must be thrown", e);
         }
     }
 
     // ══════════════════════════════════════════
     // TEST 3
-    // Zero capacity must throw
-    // InvalidCapacityException
+    // Cargo must NOT be assigned after
+    // a failed unsafe assignment
     // ══════════════════════════════════════════
     @Test
-    public void testException_ZeroCapacityThrowsException() {
+    public void testCargo_CargoNotAssignedAfterFailure() {
+
+        TrainConsistManagementApp.GoodsBogie bogie =
+                new TrainConsistManagementApp.GoodsBogie("Rectangular");
 
         try {
-            new TrainConsistManagementApp.PassengerBogie("First Class", 0);
-            fail("Exception expected for zero capacity");
-
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
-            assertNotNull("Exception must be thrown for zero capacity", e);
+            bogie.assignCargo("Petroleum");
+        } catch (TrainConsistManagementApp.CargoSafetyException e) {
+            // expected
         }
+
+        assertNull("Cargo must remain null after failed assignment",
+                bogie.cargo);
     }
 
     // ══════════════════════════════════════════
     // TEST 4
-    // Exception message must match exactly
+    // Program must continue running after
+    // exception is handled
     // ══════════════════════════════════════════
     @Test
-    public void testException_ExceptionMessageValidation() {
+    public void testCargo_ProgramContinuesAfterException() {
+
+        TrainConsistManagementApp.GoodsBogie b1 =
+                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        TrainConsistManagementApp.GoodsBogie b2 =
+                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
 
         try {
-            new TrainConsistManagementApp.PassengerBogie("Sleeper", -5);
-            fail("Exception expected");
-
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
-            assertEquals("Exception message must match",
-                    "Capacity must be greater than zero",
-                    e.getMessage());
+            b1.assignCargo("Petroleum"); // will throw
+        } catch (TrainConsistManagementApp.CargoSafetyException e) {
+            // handled
         }
+
+        // b2 must still work after b1 exception
+        b2.assignCargo("Petroleum");
+        assertEquals("b2 must have Petroleum assigned",
+                "Petroleum", b2.cargo);
     }
 
     // ══════════════════════════════════════════
     // TEST 5
-    // Valid bogie must store correct
-    // type and capacity values
+    // finally block must always execute
+    // regardless of success or failure
     // ══════════════════════════════════════════
     @Test
-    public void testException_ObjectIntegrityAfterCreation() {
+    public void testCargo_FinallyBlockExecution() {
+
+        boolean[] finallyRan = {false};
+
+        TrainConsistManagementApp.GoodsBogie bogie =
+                new TrainConsistManagementApp.GoodsBogie("Rectangular");
 
         try {
-            TrainConsistManagementApp.PassengerBogie b =
-                    new TrainConsistManagementApp.PassengerBogie("Sleeper", 72);
-
-            assertEquals("Type must be Sleeper", "Sleeper", b.type);
-            assertEquals("Capacity must be 72",  72,        b.capacity);
-
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
-            fail("No exception expected: " + e.getMessage());
+            bogie.assignCargo("Petroleum");
+        } catch (TrainConsistManagementApp.CargoSafetyException e) {
+            // caught
+        } finally {
+            finallyRan[0] = true;
         }
-    }
 
-    // ══════════════════════════════════════════
-    // TEST 6
-    // Multiple valid bogies must all be
-    // created without exception
-    // ══════════════════════════════════════════
-    @Test
-    public void testException_MultipleValidBogiesCreation() {
-
-        try {
-            new TrainConsistManagementApp.PassengerBogie("Sleeper",     72);
-            new TrainConsistManagementApp.PassengerBogie("AC Chair",    56);
-            new TrainConsistManagementApp.PassengerBogie("First Class", 18);
-
-        } catch (TrainConsistManagementApp.InvalidCapacityException e) {
-            fail("No exception expected for valid bogies: " + e.getMessage());
-        }
+        assertTrue("finally block must always execute",
+                finallyRan[0]);
     }
 }
