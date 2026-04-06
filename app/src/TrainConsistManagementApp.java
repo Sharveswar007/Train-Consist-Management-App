@@ -1,33 +1,26 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TrainConsistManagementApp {
 
     // ─────────────────────────────────────────
-    // Bogie class
+    // UC11: Validate Train ID format
+    // Valid format → TRN-1234 (4 digits only)
     // ─────────────────────────────────────────
-    static class Bogie {
-        String name;
-        int capacity;
-
-        Bogie(String name, int capacity) {
-            this.name     = name;
-            this.capacity = capacity;
-        }
-
-        @Override
-        public String toString() {
-            return name + " (Capacity: " + capacity + ")";
-        }
+    static boolean validateTrainID(String trainID) {
+        Pattern pattern = Pattern.compile("TRN-\\d{4}");
+        Matcher matcher = pattern.matcher(trainID);
+        return matcher.matches();
     }
 
     // ─────────────────────────────────────────
-    // UC10: Total seating capacity using reduce
+    // UC11: Validate Cargo Code format
+    // Valid format → PET-AB (2 uppercase only)
     // ─────────────────────────────────────────
-    static int totalSeatingCapacity(List<Bogie> bogies) {
-        return bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
+    static boolean validateCargoCode(String cargoCode) {
+        Pattern pattern = Pattern.compile("PET-[A-Z]{2}");
+        Matcher matcher = pattern.matcher(cargoCode);
+        return matcher.matches();
     }
 
     // ─────────────────────────────────────────
@@ -36,25 +29,31 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
-        System.out.println("UC10: Count Total Seats using reduce()\n");
+        System.out.println("UC11: Validate Train ID & Cargo Codes\n");
 
-        // Step 1: Create list of bogies
-        List<Bogie> bogies = new ArrayList<>();
-        bogies.add(new Bogie("Sleeper",     72));
-        bogies.add(new Bogie("AC Chair",    56));
-        bogies.add(new Bogie("First Class", 18));
+        // Train ID tests
+        String[] trainIDs = {
+                "TRN-1234", "TRAIN12", "TRN12A",
+                "1234-TRN", "TRN-123", "TRN-12345"
+        };
 
-        // Step 2: Display all bogies
-        System.out.println("Bogies in Train:");
-        bogies.forEach(b -> System.out.println("  " + b));
+        System.out.println("--- Train ID Validation (Pattern: TRN-XXXX) ---");
+        for (String id : trainIDs) {
+            System.out.println("  " + id + " --> " +
+                    (validateTrainID(id) ? "VALID" : "INVALID"));
+        }
 
-        // Step 3: Calculate total using map + reduce
-        int total = totalSeatingCapacity(bogies);
+        // Cargo Code tests
+        String[] cargoCodes = {
+                "PET-AB", "PET-ab", "PET123",
+                "AB-PET", "PET-A",  "PET-ABC"
+        };
 
-        // Step 4: Display result
-        System.out.println("\nTotal Seating Capacity : " + total + " seats");
-        System.out.println("Total bogies in consist: " + bogies.size());
-        System.out.println("Original list unchanged: " + (bogies.size() == 3));
+        System.out.println("\n--- Cargo Code Validation (Pattern: PET-XX) ---");
+        for (String code : cargoCodes) {
+            System.out.println("  " + code + " --> " +
+                    (validateCargoCode(code) ? "VALID" : "INVALID"));
+        }
 
         System.out.println("\nProgram continues...");
     }

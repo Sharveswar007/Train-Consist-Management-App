@@ -1,137 +1,118 @@
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class TrainConsistManagementAppTest {
 
-    private List<TrainConsistManagementApp.Bogie> bogies;
-
-    @Before
-    public void setUp() {
-        bogies = new ArrayList<>();
-        bogies.add(new TrainConsistManagementApp.Bogie("Sleeper",     72));
-        bogies.add(new TrainConsistManagementApp.Bogie("AC Chair",    56));
-        bogies.add(new TrainConsistManagementApp.Bogie("First Class", 18));
-    }
-
     // ══════════════════════════════════════════
     // TEST 1
-    // Total seat calculation must be correct
-    // 72 + 56 + 18 = 146
+    // Valid Train ID must return true
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_TotalSeatCalculation() {
+    public void testRegex_ValidTrainID() {
 
-        int total = TrainConsistManagementApp.totalSeatingCapacity(bogies);
-
-        assertEquals("Total seats must be 146",
-                146, total);
+        assertTrue("TRN-1234 must be valid",
+                TrainConsistManagementApp.validateTrainID("TRN-1234"));
     }
 
     // ══════════════════════════════════════════
     // TEST 2
-    // All bogie capacities must be included
-    // in the final aggregation
+    // Invalid Train ID formats must return false
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_MultipleBogiesAggregation() {
+    public void testRegex_InvalidTrainIDFormat() {
 
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-        list.add(new TrainConsistManagementApp.Bogie("A", 50));
-        list.add(new TrainConsistManagementApp.Bogie("B", 50));
-        list.add(new TrainConsistManagementApp.Bogie("C", 50));
+        assertFalse("TRAIN12 must be invalid",
+                TrainConsistManagementApp.validateTrainID("TRAIN12"));
 
-        int total = TrainConsistManagementApp.totalSeatingCapacity(list);
+        assertFalse("TRN12A must be invalid",
+                TrainConsistManagementApp.validateTrainID("TRN12A"));
 
-        assertEquals("Total must be 150 for three bogies of 50 each",
-                150, total);
+        assertFalse("1234-TRN must be invalid",
+                TrainConsistManagementApp.validateTrainID("1234-TRN"));
     }
 
     // ══════════════════════════════════════════
     // TEST 3
-    // Single bogie total must equal
-    // its own capacity
+    // Valid Cargo Code must return true
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_SingleBogieCapacity() {
+    public void testRegex_ValidCargoCode() {
 
-        List<TrainConsistManagementApp.Bogie> single = new ArrayList<>();
-        single.add(new TrainConsistManagementApp.Bogie("Sleeper", 72));
-
-        int total = TrainConsistManagementApp.totalSeatingCapacity(single);
-
-        assertEquals("Single bogie total must equal its capacity",
-                72, total);
+        assertTrue("PET-AB must be valid",
+                TrainConsistManagementApp.validateCargoCode("PET-AB"));
     }
 
     // ══════════════════════════════════════════
     // TEST 4
-    // Empty list must return 0
-    // (identity value of reduce)
+    // Invalid Cargo Code formats must return false
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_EmptyBogieList() {
+    public void testRegex_InvalidCargoCodeFormat() {
 
-        int total = TrainConsistManagementApp
-                .totalSeatingCapacity(new ArrayList<>());
+        assertFalse("PET-ab must be invalid (lowercase)",
+                TrainConsistManagementApp.validateCargoCode("PET-ab"));
 
-        assertEquals("Empty list must return total of 0",
-                0, total);
+        assertFalse("PET123 must be invalid",
+                TrainConsistManagementApp.validateCargoCode("PET123"));
+
+        assertFalse("AB-PET must be invalid",
+                TrainConsistManagementApp.validateCargoCode("AB-PET"));
     }
 
     // ══════════════════════════════════════════
     // TEST 5
-    // map() must correctly extract capacity
-    // values from Bogie objects
+    // Train ID must have exactly 4 digits
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_CorrectCapacityExtraction() {
+    public void testRegex_TrainIDDigitLengthValidation() {
 
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-        list.add(new TrainConsistManagementApp.Bogie("X", 100));
+        assertFalse("TRN-123 must be invalid (only 3 digits)",
+                TrainConsistManagementApp.validateTrainID("TRN-123"));
 
-        int total = TrainConsistManagementApp.totalSeatingCapacity(list);
-
-        assertEquals("Capacity extracted must be 100",
-                100, total);
+        assertFalse("TRN-12345 must be invalid (5 digits)",
+                TrainConsistManagementApp.validateTrainID("TRN-12345"));
     }
 
     // ══════════════════════════════════════════
     // TEST 6
-    // All bogies must be included in total
-    // Manual sum must match reduce result
+    // Cargo Code must accept only uppercase
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_AllBogiesIncluded() {
+    public void testRegex_CargoCodeUppercaseValidation() {
 
-        int manualSum = 0;
-        for (TrainConsistManagementApp.Bogie b : bogies) {
-            manualSum += b.capacity;
-        }
+        assertFalse("PET-ab must be invalid (lowercase letters)",
+                TrainConsistManagementApp.validateCargoCode("PET-ab"));
 
-        int total = TrainConsistManagementApp.totalSeatingCapacity(bogies);
-
-        assertEquals("Reduce result must match manual sum",
-                manualSum, total);
+        assertFalse("PET-Ab must be invalid (mixed case)",
+                TrainConsistManagementApp.validateCargoCode("PET-Ab"));
     }
 
     // ══════════════════════════════════════════
     // TEST 7
-    // Original list must remain unchanged
-    // after reduce operation
+    // Empty input must return false for both
     // ══════════════════════════════════════════
     @Test
-    public void testReduce_OriginalListUnchanged() {
+    public void testRegex_EmptyInputHandling() {
 
-        int originalSize = bogies.size();
+        assertFalse("Empty Train ID must be invalid",
+                TrainConsistManagementApp.validateTrainID(""));
 
-        TrainConsistManagementApp.totalSeatingCapacity(bogies);
+        assertFalse("Empty Cargo Code must be invalid",
+                TrainConsistManagementApp.validateCargoCode(""));
+    }
 
-        assertEquals("Original list must not be modified",
-                originalSize, bogies.size());
+    // ══════════════════════════════════════════
+    // TEST 8
+    // Extra characters beyond pattern must fail
+    // ══════════════════════════════════════════
+    @Test
+    public void testRegex_ExactPatternMatch() {
+
+        assertFalse("TRN-1234X must be invalid (extra char)",
+                TrainConsistManagementApp.validateTrainID("TRN-1234X"));
+
+        assertFalse("PET-ABC must be invalid (3 letters)",
+                TrainConsistManagementApp.validateCargoCode("PET-ABC"));
     }
 }
