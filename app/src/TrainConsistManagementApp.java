@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TrainConsistManagementApp {
 
@@ -6,36 +7,43 @@ public class TrainConsistManagementApp {
 
         // Step 1: Welcome message
         System.out.println("=== Train Consist Management App ===");
+        System.out.println("UC3: Track Unique Bogie IDs using HashSet");
 
-        // Step 2: Create an ArrayList to store passenger bogies
-        ArrayList<String> passengerBogies = new ArrayList<>();
+        // Step 2: Create a HashSet to store unique bogie IDs
+        Set<String> bogieIDs = new HashSet<>();
 
-        // Step 3: Add bogies using add()
-        passengerBogies.add("Sleeper");
-        passengerBogies.add("AC Chair");
-        passengerBogies.add("First Class");
+        // Step 3: Add bogie IDs (including intentional duplicates)
+        System.out.println("\nAdding bogie IDs to the train consist...");
 
-        // Step 4: Display bogies after insertion
-        System.out.println("\nPassenger Bogies after addition:");
-        System.out.println(passengerBogies);
-        System.out.println("Total bogies: " + passengerBogies.size());
+        bogieIDs.add("BG101");
+        System.out.println("Adding BG101...");
 
-        // Step 5: Remove a bogie using remove()
-        passengerBogies.remove("AC Chair");
-        System.out.println("\nAfter removing 'AC Chair':");
-        System.out.println(passengerBogies);
+        bogieIDs.add("BG102");
+        System.out.println("Adding BG102...");
 
-        // Step 6: Check existence using contains()
-        boolean hasSleeper = passengerBogies.contains("Sleeper");
-        System.out.println("\nDoes consist contain 'Sleeper'? " + hasSleeper);
+        bogieIDs.add("BG103");
+        System.out.println("Adding BG103...");
 
-        boolean hasACChair = passengerBogies.contains("AC Chair");
-        System.out.println("Does consist contain 'AC Chair'? " + hasACChair);
+        bogieIDs.add("BG101"); // Duplicate
+        System.out.println("Adding BG101 again (duplicate)...");
 
-        // Step 7: Print final list state
-        System.out.println("\nFinal Passenger Bogie Consist:");
-        System.out.println(passengerBogies);
-        System.out.println("Total bogies in consist: " + passengerBogies.size());
+        bogieIDs.add("BG102"); // Duplicate
+        System.out.println("Adding BG102 again (duplicate)...");
+
+        bogieIDs.add("BG104");
+        System.out.println("Adding BG104...");
+
+        // Step 4: Display unique bogie IDs
+        System.out.println("\nUnique Bogie IDs in Train Consist:");
+        System.out.println(bogieIDs);
+
+        // Step 5: Display total count
+        System.out.println("\nTotal unique bogies registered: " + bogieIDs.size());
+
+        // Step 6: Check if a specific bogie ID exists
+        System.out.println("\nChecking bogie existence:");
+        System.out.println("Contains BG101? " + bogieIDs.contains("BG101"));
+        System.out.println("Contains BG105? " + bogieIDs.contains("BG105"));
 
         System.out.println("\nProgram continues...");
     }
