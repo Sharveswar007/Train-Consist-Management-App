@@ -1,34 +1,42 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TrainConsistManagementApp {
 
     // ─────────────────────────────────────────
-    // GoodsBogie class
+    // Bogie class
     // ─────────────────────────────────────────
-    static class GoodsBogie {
-        String type;
-        String cargo;
+    static class Bogie {
+        String name;
+        int capacity;
 
-        GoodsBogie(String type, String cargo) {
-            this.type  = type;
-            this.cargo = cargo;
-        }
-
-        @Override
-        public String toString() {
-            return type + " | Cargo: " + cargo;
+        Bogie(String name, int capacity) {
+            this.name     = name;
+            this.capacity = capacity;
         }
     }
 
     // ─────────────────────────────────────────
-    // UC12: Safety compliance check
-    // Rule: Cylindrical → only Petroleum allowed
+    // UC13: Loop-based filtering
     // ─────────────────────────────────────────
-    static boolean isSafetyCompliant(List<GoodsBogie> bogies) {
+    static List<Bogie> filterByLoop(List<Bogie> bogies, int threshold) {
+        List<Bogie> result = new ArrayList<>();
+        for (Bogie b : bogies) {
+            if (b.capacity > threshold) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    // ─────────────────────────────────────────
+    // UC13: Stream-based filtering
+    // ─────────────────────────────────────────
+    static List<Bogie> filterByStream(List<Bogie> bogies, int threshold) {
         return bogies.stream()
-                .allMatch(b -> !b.type.equals("Cylindrical") ||
-                        b.cargo.equals("Petroleum"));
+                .filter(b -> b.capacity > threshold)
+                .collect(Collectors.toList());
     }
 
     // ─────────────────────────────────────────
@@ -37,29 +45,38 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
-        System.out.println("UC12: Safety Compliance Check\n");
+        System.out.println("UC13: Performance Comparison\n");
 
-        // Safe formation
-        List<GoodsBogie> safeBogies = new ArrayList<>();
-        safeBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        safeBogies.add(new GoodsBogie("Rectangular", "Coal"));
-        safeBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
+        // Create large dataset
+        List<Bogie> bogies = new ArrayList<>();
+        for (int i = 1; i <= 100000; i++) {
+            bogies.add(new Bogie("Bogie-" + i, 30 + (i % 80)));
+        }
+        System.out.println("Dataset size: " + bogies.size() + " bogies\n");
 
-        System.out.println("Safe Formation:");
-        safeBogies.forEach(b -> System.out.println("  " + b));
-        System.out.println("Safety Compliant: " +
-                isSafetyCompliant(safeBogies));
+        // Loop-based benchmark
+        long loopStart = System.nanoTime();
+        List<Bogie> loopResult = filterByLoop(bogies, 60);
+        long loopTime  = System.nanoTime() - loopStart;
 
-        // Unsafe formation
-        List<GoodsBogie> unsafeBogies = new ArrayList<>();
-        unsafeBogies.add(new GoodsBogie("Cylindrical", "Petroleum"));
-        unsafeBogies.add(new GoodsBogie("Cylindrical", "Coal")); // violation
-        unsafeBogies.add(new GoodsBogie("Rectangular", "Grain"));
+        System.out.println("--- Loop-Based Filtering ---");
+        System.out.println("Filtered bogies : " + loopResult.size());
+        System.out.println("Execution Time  : " + loopTime + " ns");
 
-        System.out.println("\nUnsafe Formation:");
-        unsafeBogies.forEach(b -> System.out.println("  " + b));
-        System.out.println("Safety Compliant: " +
-                isSafetyCompliant(unsafeBogies));
+        // Stream-based benchmark
+        long streamStart = System.nanoTime();
+        List<Bogie> streamResult = filterByStream(bogies, 60);
+        long streamTime  = System.nanoTime() - streamStart;
+
+        System.out.println("\n--- Stream-Based Filtering ---");
+        System.out.println("Filtered bogies : " + streamResult.size());
+        System.out.println("Execution Time  : " + streamTime + " ns");
+
+        System.out.println("\n--- Comparison Summary ---");
+        System.out.println("Results match : " +
+                (loopResult.size() == streamResult.size()));
+        System.out.println("Faster        : " +
+                (loopTime < streamTime ? "Loop" : "Stream"));
 
         System.out.println("\nProgram continues...");
     }
