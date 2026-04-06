@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TrainConsistManagementApp {
 
@@ -24,11 +22,12 @@ public class TrainConsistManagementApp {
     }
 
     // ─────────────────────────────────────────
-    // UC9: Group bogies by type
+    // UC10: Total seating capacity using reduce
     // ─────────────────────────────────────────
-    static Map<String, List<Bogie>> groupBogiesByType(List<Bogie> bogies) {
+    static int totalSeatingCapacity(List<Bogie> bogies) {
         return bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
     }
 
     // ─────────────────────────────────────────
@@ -37,36 +36,26 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
-        System.out.println("UC9: Group Bogies by Type\n");
+        System.out.println("UC10: Count Total Seats using reduce()\n");
 
-        // Step 1: Create list with multiple bogies of same type
+        // Step 1: Create list of bogies
         List<Bogie> bogies = new ArrayList<>();
         bogies.add(new Bogie("Sleeper",     72));
         bogies.add(new Bogie("AC Chair",    56));
-        bogies.add(new Bogie("Sleeper",     70));
         bogies.add(new Bogie("First Class", 18));
-        bogies.add(new Bogie("AC Chair",    60));
-        bogies.add(new Bogie("First Class", 20));
 
         // Step 2: Display all bogies
-        System.out.println("All Bogies:");
+        System.out.println("Bogies in Train:");
         bogies.forEach(b -> System.out.println("  " + b));
 
-        // Step 3: Group bogies by type
-        Map<String, List<Bogie>> grouped = groupBogiesByType(bogies);
+        // Step 3: Calculate total using map + reduce
+        int total = totalSeatingCapacity(bogies);
 
-        // Step 4: Display grouped result
-        System.out.println("\nGrouped Bogies by Type:");
-        for (Map.Entry<String, List<Bogie>> entry : grouped.entrySet()) {
-            System.out.println("\n  Type  : " + entry.getKey());
-            System.out.println("  Count : " + entry.getValue().size());
-            entry.getValue().forEach(b ->
-                    System.out.println("    -> " + b));
-        }
+        // Step 4: Display result
+        System.out.println("\nTotal Seating Capacity : " + total + " seats");
+        System.out.println("Total bogies in consist: " + bogies.size());
+        System.out.println("Original list unchanged: " + (bogies.size() == 3));
 
-        // Step 5: Summary
-        System.out.println("\nTotal bogie types found  : " + grouped.size());
-        System.out.println("Original list unchanged  : " + (bogies.size() == 6));
         System.out.println("\nProgram continues...");
     }
 }
