@@ -1,34 +1,33 @@
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TrainConsistManagementApp {
 
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
-        System.out.println("UC5: Preserve Insertion Order using LinkedHashSet");
+        System.out.println("UC6: Map Bogie to Capacity using HashMap");
 
-        // Step 1: Create LinkedHashSet for train formation
-        Set<String> formation = new LinkedHashSet<>();
+        // Step 1: Create HashMap to store bogie-capacity pairs
+        Map<String, Integer> bogieCapacity = new HashMap<>();
 
-        // Step 2: Add bogies in order
-        formation.add("Engine");
-        formation.add("Sleeper");
-        formation.add("Cargo");
-        formation.add("Guard");
+        // Step 2: Insert bogie-capacity mappings using put()
+        bogieCapacity.put("Sleeper", 72);
+        bogieCapacity.put("AC Chair", 56);
+        bogieCapacity.put("First Class", 18);
 
-        System.out.println("\nTrain Formation after initial attachment:");
-        System.out.println(formation);
+        // Step 3: Display all entries using entrySet()
+        System.out.println("\nBogie Capacity Mapping:");
+        for (Map.Entry<String, Integer> entry : bogieCapacity.entrySet()) {
+            System.out.println("  Bogie: " + entry.getKey() +
+                    " | Capacity: " + entry.getValue() + " seats");
+        }
 
-        // Step 3: Attempt to add duplicate
-        System.out.println("\nAttempting to attach 'Sleeper' again (duplicate)...");
-        boolean added = formation.add("Sleeper");
-        System.out.println("Was duplicate added? " + added);
+        // Step 4: Fast lookup using key
+        System.out.println("\nLookup Capacity for 'Sleeper': " +
+                bogieCapacity.get("Sleeper") + " seats");
 
-        // Step 4: Display final formation
-        System.out.println("\nFinal Train Formation (insertion order preserved):");
-        System.out.println(formation);
-        System.out.println("Total bogies: " + formation.size());
+        System.out.println("Total bogie types mapped: " + bogieCapacity.size());
 
         System.out.println("\nProgram continues...");
     }
