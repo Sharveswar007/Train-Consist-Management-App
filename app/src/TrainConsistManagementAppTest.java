@@ -6,109 +6,86 @@ public class TrainConsistManagementAppTest {
 
     // ══════════════════════════════════════════
     // TEST 1
-    // Safe cargo assignment must succeed
-    // without any exception
+    // Basic unsorted array must be sorted
+    // correctly in ascending order
     // ══════════════════════════════════════════
     @Test
-    public void testCargo_SafeAssignment() {
+    public void testSort_BasicSorting() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
+        int[] input = {72, 56, 24, 70, 60};
+        int[] expected = {24, 56, 60, 70, 72};
 
-        bogie.assignCargo("Petroleum");
+        int[] result = TrainConsistManagementApp.bubbleSort(input);
 
-        assertEquals("Cargo must be Petroleum",
-                "Petroleum", bogie.cargo);
+        assertArrayEquals("Array must be sorted in ascending order",
+                expected, result);
     }
 
     // ══════════════════════════════════════════
     // TEST 2
-    // Petroleum on Rectangular must throw
-    // CargoSafetyException
+    // Already sorted array must remain
+    // unchanged after sorting
     // ══════════════════════════════════════════
     @Test
-    public void testCargo_UnsafeAssignmentHandled() {
+    public void testSort_AlreadySortedArray() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        int[] input = {24, 56, 60, 70, 72};
+        int[] expected = {24, 56, 60, 70, 72};
 
-        try {
-            bogie.assignCargo("Petroleum");
-            fail("CargoSafetyException expected");
+        int[] result = TrainConsistManagementApp.bubbleSort(input);
 
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            assertNotNull("Exception must be thrown", e);
-        }
+        assertArrayEquals("Already sorted array must remain unchanged",
+                expected, result);
     }
 
     // ══════════════════════════════════════════
     // TEST 3
-    // Cargo must NOT be assigned after
-    // a failed unsafe assignment
+    // Duplicate values must be handled
+    // correctly and sorted properly
     // ══════════════════════════════════════════
     @Test
-    public void testCargo_CargoNotAssignedAfterFailure() {
+    public void testSort_DuplicateValues() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        int[] input = {72, 56, 56, 24};
+        int[] expected = {24, 56, 56, 72};
 
-        try {
-            bogie.assignCargo("Petroleum");
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // expected
-        }
+        int[] result = TrainConsistManagementApp.bubbleSort(input);
 
-        assertNull("Cargo must remain null after failed assignment",
-                bogie.cargo);
+        assertArrayEquals("Duplicate values must be handled correctly",
+                expected, result);
     }
 
     // ══════════════════════════════════════════
     // TEST 4
-    // Program must continue running after
-    // exception is handled
+    // Single element array must remain
+    // unchanged after sorting
     // ══════════════════════════════════════════
     @Test
-    public void testCargo_ProgramContinuesAfterException() {
+    public void testSort_SingleElementArray() {
 
-        TrainConsistManagementApp.GoodsBogie b1 =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
-        TrainConsistManagementApp.GoodsBogie b2 =
-                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
+        int[] input = {50};
+        int[] expected = {50};
 
-        try {
-            b1.assignCargo("Petroleum"); // will throw
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // handled
-        }
+        int[] result = TrainConsistManagementApp.bubbleSort(input);
 
-        // b2 must still work after b1 exception
-        b2.assignCargo("Petroleum");
-        assertEquals("b2 must have Petroleum assigned",
-                "Petroleum", b2.cargo);
+        assertArrayEquals("Single element array must remain unchanged",
+                expected, result);
     }
 
     // ══════════════════════════════════════════
     // TEST 5
-    // finally block must always execute
-    // regardless of success or failure
+    // All equal values must remain unchanged
+    // after sorting
     // ══════════════════════════════════════════
     @Test
-    public void testCargo_FinallyBlockExecution() {
+    public void testSort_AllEqualValues() {
 
-        boolean[] finallyRan = {false};
+        int[] input = {40, 40, 40};
+        int[] expected = {40, 40, 40};
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        int[] result = TrainConsistManagementApp.bubbleSort(input);
 
-        try {
-            bogie.assignCargo("Petroleum");
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // caught
-        } finally {
-            finallyRan[0] = true;
-        }
-
-        assertTrue("finally block must always execute",
-                finallyRan[0]);
+        assertArrayEquals("All equal values must remain unchanged",
+                expected, result);
     }
 }
