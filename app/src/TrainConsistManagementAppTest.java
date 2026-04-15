@@ -4,111 +4,49 @@ import static org.junit.Assert.*;
 
 public class TrainConsistManagementAppTest {
 
-    // ══════════════════════════════════════════
-    // TEST 1
-    // Safe cargo assignment must succeed
-    // without any exception
-    // ══════════════════════════════════════════
+    private final String[] bogieIDs = {
+        "BG101", "BG205", "BG309", "BG412", "BG550"
+    };
+
     @Test
-    public void testCargo_SafeAssignment() {
+    public void testSearch_BogieFound() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
+        boolean result = TrainConsistManagementApp.linearSearch(bogieIDs, "BG309");
 
-        bogie.assignCargo("Petroleum");
-
-        assertEquals("Cargo must be Petroleum",
-                "Petroleum", bogie.cargo);
+        assertTrue("BG309 must be found in the list", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 2
-    // Petroleum on Rectangular must throw
-    // CargoSafetyException
-    // ══════════════════════════════════════════
     @Test
-    public void testCargo_UnsafeAssignmentHandled() {
+    public void testSearch_BogieNotFound() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        boolean result = TrainConsistManagementApp.linearSearch(bogieIDs, "BG999");
 
-        try {
-            bogie.assignCargo("Petroleum");
-            fail("CargoSafetyException expected");
-
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            assertNotNull("Exception must be thrown", e);
-        }
+        assertFalse("BG999 must NOT be found in the list", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 3
-    // Cargo must NOT be assigned after
-    // a failed unsafe assignment
-    // ══════════════════════════════════════════
     @Test
-    public void testCargo_CargoNotAssignedAfterFailure() {
+    public void testSearch_FirstElementMatch() {
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        boolean result = TrainConsistManagementApp.linearSearch(bogieIDs, "BG101");
 
-        try {
-            bogie.assignCargo("Petroleum");
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // expected
-        }
-
-        assertNull("Cargo must remain null after failed assignment",
-                bogie.cargo);
+        assertTrue("BG101 is first element and must be found", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 4
-    // Program must continue running after
-    // exception is handled
-    // ══════════════════════════════════════════
     @Test
-    public void testCargo_ProgramContinuesAfterException() {
+    public void testSearch_LastElementMatch() {
 
-        TrainConsistManagementApp.GoodsBogie b1 =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
-        TrainConsistManagementApp.GoodsBogie b2 =
-                new TrainConsistManagementApp.GoodsBogie("Cylindrical");
+        boolean result = TrainConsistManagementApp.linearSearch(bogieIDs, "BG550");
 
-        try {
-            b1.assignCargo("Petroleum"); // will throw
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // handled
-        }
-
-        // b2 must still work after b1 exception
-        b2.assignCargo("Petroleum");
-        assertEquals("b2 must have Petroleum assigned",
-                "Petroleum", b2.cargo);
+        assertTrue("BG550 is last element and must be found", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 5
-    // finally block must always execute
-    // regardless of success or failure
-    // ══════════════════════════════════════════
     @Test
-    public void testCargo_FinallyBlockExecution() {
+    public void testSearch_SingleElementArray() {
 
-        boolean[] finallyRan = {false};
+        String[] single = {"BG101"};
 
-        TrainConsistManagementApp.GoodsBogie bogie =
-                new TrainConsistManagementApp.GoodsBogie("Rectangular");
+        boolean result = TrainConsistManagementApp.linearSearch(single, "BG101");
 
-        try {
-            bogie.assignCargo("Petroleum");
-        } catch (TrainConsistManagementApp.CargoSafetyException e) {
-            // caught
-        } finally {
-            finallyRan[0] = true;
-        }
-
-        assertTrue("finally block must always execute",
-                finallyRan[0]);
+        assertTrue("Single element array match must return true", result);
     }
 }
