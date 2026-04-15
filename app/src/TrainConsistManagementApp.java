@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class TrainConsistManagementApp {
 
     // UC17: Sort bogie names using Arrays.sort()
@@ -23,18 +21,17 @@ public class TrainConsistManagementApp {
         // Outer loop — number of passes
         for (int i = 0; i < n - 1; i++) {
 
-            // Inner loop — compare adjacent elements
-            for (int j = 0; j < n - 1 - i; j++) {
+        if (bogieIDs == null || bogieIDs.length == 0) {
+            throw new IllegalStateException(
+                "Cannot search: Train consist is empty. Please add bogies before searching.");
+        }
 
-                // Swap if left element is greater than right
-                if (arr[j] > arr[j + 1]) {
-                    int temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
-                }
+        for (String id : bogieIDs) {
+            if (id.equals(searchKey)) {
+                return true;
             }
         }
-        return arr;
+        return false;
     }
 
     public static void main(String[] args) {
@@ -78,25 +75,25 @@ public class TrainConsistManagementApp {
         System.out.println("\nSorted Capacities (Ascending):");
         System.out.println("  " + Arrays.toString(sorted));
 
-        // Step 5: Show pass-by-pass trace
-        System.out.println("\nPass-by-Pass Trace:");
-        int[] trace = Arrays.copyOf(capacities, capacities.length);
-        int n = trace.length;
-
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - 1 - i; j++) {
-                if (trace[j] > trace[j + 1]) {
-                    int temp = trace[j];
-                    trace[j] = trace[j + 1];
-                    trace[j + 1] = temp;
-                }
-            }
-            System.out.println("  After Pass " + (i + 1) + ": " +
-                    Arrays.toString(trace));
+        System.out.println("\n--- Searching on Valid Consist ---");
+        String[] bogieIDs = {"BG101", "BG205", "BG309"};
+        try {
+            boolean found = searchWithValidation(bogieIDs, "BG205");
+            System.out.println("Searching for BG205...");
+            System.out.println("Result: " + (found ? "Bogie FOUND" : "Bogie NOT FOUND"));
+        } catch (IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
         }
 
-        System.out.println("\nOriginal array unchanged: " +
-                Arrays.toString(capacities));
-        System.out.println("\nProgram continues...");
+        System.out.println("\n--- Searching for Non-Existing Bogie ---");
+        try {
+            boolean found = searchWithValidation(bogieIDs, "BG999");
+            System.out.println("Searching for BG999...");
+            System.out.println("Result: " + (found ? "Bogie FOUND" : "Bogie NOT FOUND"));
+        } catch (IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("\nProgram continues safely...");
     }
 }

@@ -63,82 +63,57 @@ public class TrainConsistManagementAppTest {
     // correctly in ascending order
     // ══════════════════════════════════════════
     @Test
-    public void testSort_BasicSorting() {
+    public void testSearch_ThrowsExceptionWhenEmpty() {
 
-        int[] input = {72, 56, 24, 70, 60};
-        int[] expected = {24, 56, 60, 70, 72};
+        String[] empty = {};
 
-        int[] result = TrainConsistManagementApp.bubbleSort(input);
-
-        assertArrayEquals("Array must be sorted in ascending order",
-                expected, result);
+        try {
+            TrainConsistManagementApp.searchWithValidation(empty, "BG101");
+            fail("IllegalStateException expected for empty array");
+        } catch (IllegalStateException e) {
+            assertNotNull("Exception must be thrown for empty consist", e.getMessage());
+        }
     }
 
-    // ══════════════════════════════════════════
-    // TEST 2
-    // Already sorted array must remain
-    // unchanged after sorting
-    // ══════════════════════════════════════════
     @Test
-    public void testSort_AlreadySortedArray() {
+    public void testSearch_AllowsSearchWhenDataExists() {
 
-        int[] input = {24, 56, 60, 70, 72};
-        int[] expected = {24, 56, 60, 70, 72};
+        String[] bogieIDs = {"BG101", "BG205"};
 
-        int[] result = TrainConsistManagementApp.bubbleSort(input);
-
-        assertArrayEquals("Already sorted array must remain unchanged",
-                expected, result);
+        try {
+            TrainConsistManagementApp.searchWithValidation(bogieIDs, "BG101");
+        } catch (IllegalStateException e) {
+            fail("No exception expected when data exists: " + e.getMessage());
+        }
     }
 
-    // ══════════════════════════════════════════
-    // TEST 3
-    // Duplicate values must be handled
-    // correctly and sorted properly
-    // ══════════════════════════════════════════
     @Test
-    public void testSort_DuplicateValues() {
+    public void testSearch_BogieFoundAfterValidation() {
 
-        int[] input = {72, 56, 56, 24};
-        int[] expected = {24, 56, 56, 72};
+        String[] bogieIDs = {"BG101", "BG205", "BG309"};
 
-        int[] result = TrainConsistManagementApp.bubbleSort(input);
+        boolean result = TrainConsistManagementApp.searchWithValidation(bogieIDs, "BG205");
 
-        assertArrayEquals("Duplicate values must be handled correctly",
-                expected, result);
+        assertTrue("BG205 must be found after validation passes", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 4
-    // Single element array must remain
-    // unchanged after sorting
-    // ══════════════════════════════════════════
     @Test
-    public void testSort_SingleElementArray() {
+    public void testSearch_BogieNotFoundAfterValidation() {
 
-        int[] input = {50};
-        int[] expected = {50};
+        String[] bogieIDs = {"BG101", "BG205", "BG309"};
 
-        int[] result = TrainConsistManagementApp.bubbleSort(input);
+        boolean result = TrainConsistManagementApp.searchWithValidation(bogieIDs, "BG999");
 
-        assertArrayEquals("Single element array must remain unchanged",
-                expected, result);
+        assertFalse("BG999 must NOT be found after validation", result);
     }
 
-    // ══════════════════════════════════════════
-    // TEST 5
-    // All equal values must remain unchanged
-    // after sorting
-    // ══════════════════════════════════════════
     @Test
-    public void testSort_AllEqualValues() {
+    public void testSearch_SingleElementValidCase() {
 
-        int[] input = {40, 40, 40};
-        int[] expected = {40, 40, 40};
+        String[] single = {"BG101"};
 
-        int[] result = TrainConsistManagementApp.bubbleSort(input);
+        boolean result = TrainConsistManagementApp.searchWithValidation(single, "BG101");
 
-        assertArrayEquals("All equal values must remain unchanged",
-                expected, result);
+        assertTrue("Single element search must return true", result);
     }
 }
