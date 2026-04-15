@@ -1,86 +1,68 @@
+import java.util.Arrays;
+
 public class TrainConsistManagementApp {
 
-    // ─────────────────────────────────────────
-    // UC15: Custom Runtime Exception
-    // ─────────────────────────────────────────
-    static class CargoSafetyException extends RuntimeException {
-        CargoSafetyException(String message) {
-            super(message);
-        }
-    }
+    // UC19: Binary Search for Bogie ID
+    static boolean binarySearch(String[] bogieIDs, String searchKey) {
 
-    // ─────────────────────────────────────────
-    // GoodsBogie with cargo assignment rule
-    // Rule: Rectangular cannot carry Petroleum
-    // ─────────────────────────────────────────
-    static class GoodsBogie {
-        String shape;
-        String cargo;
+        String[] sorted = Arrays.copyOf(bogieIDs, bogieIDs.length);
+        Arrays.sort(sorted);
 
-        GoodsBogie(String shape) {
-            this.shape = shape;
-            this.cargo = null;
-        }
+        int low = 0;
+        int high = sorted.length - 1;
 
-        void assignCargo(String cargo) {
-            if (shape.equals("Rectangular") &&
-                    cargo.equals("Petroleum")) {
-                throw new CargoSafetyException(
-                        "Unsafe: Petroleum cannot be assigned " +
-                                "to Rectangular bogie!");
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            int compare = searchKey.compareTo(sorted[mid]);
+
+            if (compare == 0) {
+                return true;
+            } else if (compare > 0) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
             }
-            this.cargo = cargo;
         }
-
-        @Override
-        public String toString() {
-            return shape + " | Cargo: " +
-                    (cargo != null ? cargo : "None");
-        }
+        return false;
     }
 
-    // ─────────────────────────────────────────
-    // Safe assignment method with
-    // try-catch-finally
-    // ─────────────────────────────────────────
-    static void attemptCargoAssignment(GoodsBogie bogie,
-                                       String cargo) {
-        System.out.println("\nAssigning '" + cargo +
-                "' to " + bogie.shape + " bogie...");
-        try {
-            bogie.assignCargo(cargo);
-            System.out.println("  Assignment successful.");
-        } catch (CargoSafetyException e) {
-            System.out.println("  CargoSafetyException: " +
-                    e.getMessage());
-        } finally {
-            System.out.println("  [LOG] Validation complete.");
-        }
-    }
-
-    // ─────────────────────────────────────────
-    // MAIN METHOD
-    // ─────────────────────────────────────────
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
-        System.out.println("UC15: Safe Cargo Assignment\n");
+        System.out.println("UC19: Binary Search for Bogie ID\n");
 
-        // Safe: Cylindrical + Petroleum
-        GoodsBogie cyl = new GoodsBogie("Cylindrical");
-        attemptCargoAssignment(cyl, "Petroleum");
-        System.out.println("  Status: " + cyl);
+        String[] bogieIDs = {
+            "BG101", "BG205", "BG309", "BG412", "BG550"
+        };
 
-        // Unsafe: Rectangular + Petroleum
-        GoodsBogie rect = new GoodsBogie("Rectangular");
-        attemptCargoAssignment(rect, "Petroleum");
-        System.out.println("  Status: " + rect);
+        System.out.println("Bogie IDs (Sorted):");
+        for (String id : bogieIDs) {
+            System.out.println("  " + id);
+        }
 
-        // Safe: Rectangular + Coal
-        GoodsBogie rect2 = new GoodsBogie("Rectangular");
-        attemptCargoAssignment(rect2, "Coal");
-        System.out.println("  Status: " + rect2);
+        String search1 = "BG309";
+        System.out.println("\nSearching for: " + search1);
+        System.out.println("Result: " + (binarySearch(bogieIDs, search1) ? "Bogie FOUND" : "Bogie NOT FOUND"));
 
-        System.out.println("\nProgram continues safely...");
+        String search2 = "BG999";
+        System.out.println("\nSearching for: " + search2);
+        System.out.println("Result: " + (binarySearch(bogieIDs, search2) ? "Bogie FOUND" : "Bogie NOT FOUND"));
+
+        String search3 = "BG101";
+        System.out.println("\nSearching for: " + search3);
+        System.out.println("Result: " + (binarySearch(bogieIDs, search3) ? "Bogie FOUND" : "Bogie NOT FOUND"));
+
+        String search4 = "BG550";
+        System.out.println("\nSearching for: " + search4);
+        System.out.println("Result: " + (binarySearch(bogieIDs, search4) ? "Bogie FOUND" : "Bogie NOT FOUND"));
+
+        String[] unsorted = {
+            "BG309", "BG101", "BG550", "BG205", "BG412"
+        };
+        System.out.println("\nUnsorted Input Test:");
+        System.out.println("Searching BG205 in unsorted array...");
+        System.out.println("Result: " + (binarySearch(unsorted, "BG205") ? "Bogie FOUND" : "Bogie NOT FOUND"));
+
+        System.out.println("\nProgram continues...");
     }
 }
